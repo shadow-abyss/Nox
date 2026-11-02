@@ -1,3 +1,4 @@
+# Made with vibecoding ♥️
 # Project NOX
 
 A local-first notebook for Android and desktop browsers. Black and red, gothic by disposition.
