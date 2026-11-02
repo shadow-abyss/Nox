@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0b" />
+<meta name="description" content="Project NOX — an offline-first notebook for rich text, handwriting, mindmaps, PDFs and links." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="NOX" />
+<title>Project NOX</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="stylesheet" href="css/nox.css" />
+</head>
+<body>
+
+<div id="shell">
+
+  <!-- ───────────────────────── sidebar ───────────────────────── -->
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">N</div>
+      <div class="brand-text">
+        <span class="brand-name">NOX</span>
+        <span class="brand-sub">project · notebook</span>
+      </div>
+      <button id="closeSidebar" class="icon-btn only-mobile" aria-label="Close menu">×</button>
+    </div>
+
+    <div class="new-row">
+      <button class="new-btn" data-new="rich"><i>+</i><span>Note</span></button>
+      <button class="new-btn" data-new="ink"><i>✎</i><span>Ink</span></button>
+      <button class="new-btn" data-new="mind"><i>❖</i><span>Mind</span></button>
+      <button class="new-btn" data-new="pdf"><i>▤</i><span>PDF</span></button>
+      <button class="new-btn" data-new="link"><i>∞</i><span>Link</span></button>
+    </div>
+
+    <nav class="filters" id="filters">
+      <button data-filter="all" class="active"><span>All notes</span><b id="countAll">0</b></button>
+      <button data-filter="pinned"><span>Pinned</span><b id="countPinned">0</b></button>
+      <button data-filter="trash"><span>Trash</span><b id="countTrash">0</b></button>
+    </nav>
+
+    <div class="tags" id="tagList"></div>
+
+    <div class="list-wrap">
+      <div id="docList" class="doc-list"></div>
+    </div>
+
+    <div class="side-foot">
+      <button id="btnSettings" class="ghost-btn">⚙ &nbsp;Settings &amp; backup</button>
+      <div class="net-badge" id="netBadge"><span class="dot"></span> offline ready</div>
+    </div>
+  </aside>
+
+  <div id="scrim"></div>
+
+  <!-- ───────────────────────── main ───────────────────────── -->
+  <main id="main">
+    <header id="appbar">
+      <button id="openSidebar" class="icon-btn only-mobile" aria-label="Open menu">☰</button>
+      <div class="search-wrap">
+        <span class="search-ico">⌕</span>
+        <input id="search" type="search" placeholder="Search NOX…" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="appbar-actions">
+        <button id="btnPin" class="icon-btn" title="Pin note" aria-label="Pin note">☆</button>
+        <button id="btnMore" class="icon-btn" title="Note options" aria-label="Note options">⋯</button>
+        <button id="btnTrash" class="icon-btn" title="Delete note" aria-label="Delete note">×</button>
+      </div>
+    </header>
+
+    <div id="stage">
+
+      <!-- empty state -->
+      <section id="view-empty" class="view is-active">
+        <div class="empty">
+          <div class="empty-mark">N</div>
+          <h1>Nothing is open</h1>
+          <p>Pick a note from the ledger, or forge a new one.</p>
+          <div class="empty-actions">
+            <button class="primary-btn" data-new="rich">New note</button>
+            <button class="ghost-btn" data-new="ink">New sketch</button>
+            <button class="ghost-btn" data-new="mind">New mindmap</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- rich text -->
+      <section id="view-rich" class="view">
+        <div class="doc-head">
+          <input id="richTitle" class="doc-title" placeholder="Untitled" spellcheck="false" />
+          <div class="doc-meta"><span id="richMeta">—</span></div>
+        </div>
+        <div class="toolbar" id="richToolbar">
+          <button data-cmd="bold" title="Bold"><b>B</b></button>
+          <button data-cmd="italic" title="Italic"><i>I</i></button>
+          <button data-cmd="underline" title="Underline"><u>U</u></button>
+          <button data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+          <span class="tb-sep"></span>
+          <button data-cmd="formatBlock" data-val="h1" title="Heading 1">H1</button>
+          <button data-cmd="formatBlock" data-val="h2" title="Heading 2">H2</button>
+          <button data-cmd="formatBlock" data-val="h3" title="Heading 3">H3</button>
+          <button data-cmd="formatBlock" data-val="p" title="Body text">¶</button>
+          <span class="tb-sep"></span>
+          <button data-cmd="insertUnorderedList" title="Bullet list">•—</button>
+          <button data-cmd="insertOrderedList" title="Numbered list">1—</button>
+          <button data-cmd="formatBlock" data-val="blockquote" title="Quote">❝</button>
+          <button data-cmd="formatBlock" data-val="pre" title="Code block">&lt;/&gt;</button>
+          <span class="tb-sep"></span>
+          <button data-cmd="highlight" title="Highlight">▨</button>
+          <button data-cmd="link" title="Insert link">∞</button>
+          <button data-cmd="wikilink" title="Link another note">[[ ]]</button>
+          <button data-cmd="removeFormat" title="Clear formatting">×</button>
+          <span class="tb-sep"></span>
+          <button data-cmd="undo" title="Undo">⟲</button>
+          <button data-cmd="redo" title="Redo">⟳</button>
+        </div>
+        <div class="editor-scroll">
+          <div id="richBody" class="rich-body" contenteditable="true" spellcheck="true"></div>
+        </div>
+        <div class="doc-foot">
+          <div id="backlinks" class="backlinks"></div>
+          <span id="wordCount" class="wordcount"></span>
+        </div>
+      </section>
+
+      <!-- handwriting -->
+      <section id="view-ink" class="view">
+        <div class="doc-head">
+          <input id="inkTitle" class="doc-title" placeholder="Untitled sketch" spellcheck="false" />
+          <div class="doc-meta"><span id="inkMeta">—</span></div>
+        </div>
+        <div class="toolbar" id="inkToolbar">
+          <span class="swatches" id="inkColors"></span>
+          <span class="tb-sep"></span>
+          <span class="sizes" id="inkSizes"></span>
+          <span class="tb-sep"></span>
+          <button id="inkEraser" data-on="0" title="Eraser">Erase</button>
+          <button id="inkUndo" title="Undo stroke">⟲</button>
+          <button id="inkClear" title="Clear all">× Clear</button>
+          <span class="tb-sep"></span>
+          <select id="inkPaper" class="tb-select" title="Paper">
+            <option value="plain">Plain</option>
+            <option value="ruled">Ruled</option>
+            <option value="grid">Grid</option>
+            <option value="dots">Dots</option>
+          </select>
+          <button id="inkExport" title="Export PNG">⇩ PNG</button>
+        </div>
+        <div class="canvas-wrap" id="inkWrap">
+          <canvas id="inkCanvas"></canvas>
+        </div>
+      </section>
+
+      <!-- mindmap -->
+      <section id="view-mind" class="view">
+        <div class="doc-head">
+          <input id="mindTitle" class="doc-title" placeholder="Untitled mindmap" spellcheck="false" />
+          <div class="doc-meta"><span id="mindMeta">—</span></div>
+        </div>
+        <div class="toolbar" id="mindToolbar">
+          <button id="mindAddChild" title="Add child node">+ Child</button>
+          <button id="mindAddSibling" title="Add sibling node">+ Sibling</button>
+          <button id="mindRename" title="Rename node">✎ Rename</button>
+          <button id="mindDelete" title="Delete node">✕ Delete</button>
+          <span class="tb-sep"></span>
+          <button id="mindZoomOut" title="Zoom out">−</button>
+          <button id="mindZoomIn" title="Zoom in">+</button>
+          <button id="mindFit" title="Fit to screen">⤢ Fit</button>
+          <button id="mindExport" title="Export SVG">⇩ SVG</button>
+        </div>
+        <div class="mind-wrap" id="mindWrap">
+          <svg id="mindSvg" xmlns="http://www.w3.org/2000/svg">
+            <g id="mindWorld"></g>
+          </svg>
+          <input id="mindInput" class="mind-input" type="text" autocomplete="off" spellcheck="false" />
+          <div class="mind-hint">drag to pan · wheel to zoom · double-click a node to rename · double-click empty space to add a node</div>
+        </div>
+      </section>
+
+      <!-- pdf -->
+      <section id="view-pdf" class="view">
+        <div class="doc-head">
+          <input id="pdfTitle" class="doc-title" placeholder="Untitled document" spellcheck="false" />
+          <div class="doc-meta"><span id="pdfMeta">—</span></div>
+        </div>
+        <div class="toolbar" id="pdfToolbar">
+          <button id="pdfPrev" title="Previous page">‹</button>
+          <span class="page-ind"><input id="pdfPageNum" class="page-num" type="number" min="1" value="1" /> <em id="pdfPageCount">/ 0</em></span>
+          <button id="pdfNext" title="Next page">›</button>
+          <span class="tb-sep"></span>
+          <button id="pdfZoomOut" title="Zoom out">−</button>
+          <button id="pdfZoomIn" title="Zoom in">+</button>
+          <button id="pdfFit" title="Fit width">⤢ Fit</button>
+          <span class="tb-sep"></span>
+          <button id="pdfReplace" title="Replace file">⇄ Replace</button>
+          <button id="pdfSaveFile" title="Save a copy">⇩ Save</button>
+        </div>
+        <div class="pdf-wrap" id="pdfWrap">
+          <div id="pdfPages" class="pdf-pages"></div>
+        </div>
+        <div class="pdf-notes">
+          <input id="pdfCaption" class="caption" placeholder="A line about this document…" />
+        </div>
+      </section>
+
+      <!-- link -->
+      <section id="view-link" class="view">
+        <div class="doc-head">
+          <input id="linkTitle" class="doc-title" placeholder="Untitled link" spellcheck="false" />
+          <div class="doc-meta"><span id="linkMeta">—</span></div>
+        </div>
+        <div class="link-body">
+          <div class="url-row">
+            <input id="linkUrl" class="url-input" placeholder="https://…" spellcheck="false" />
+            <a id="linkOpen" class="primary-btn" href="#" target="_blank" rel="noopener noreferrer">Open ↗</a>
+            <button id="linkCopy" class="ghost-btn">Copy</button>
+          </div>
+          <div class="link-domain" id="linkDomain"></div>
+          <textarea id="linkNotes" class="link-notes" placeholder="Why this link matters…"></textarea>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button id="fab" class="fab" aria-label="New note">+</button>
+</div>
+
+<!-- modal + toast -->
+<div id="modalRoot" class="modal-root" hidden>
+  <div class="modal-backdrop" data-close="1"></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h2 id="modalTitle">—</h2><button class="icon-btn" data-close="1">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<div id="filePick" hidden></div>
+
+<script src="vendor/pdf.min.js" defer></script>
+<script src="js/db.js" defer></script>
+<script src="js/util.js" defer></script>
+<script src="js/ink.js" defer></script>
+<script src="js/mind.js" defer></script>
+<script src="js/pdfview.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
