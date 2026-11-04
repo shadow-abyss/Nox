@@ -3,6 +3,12 @@
 (function () {
   'use strict';
 
+  if (window.pdfjsLib) {
+    // Configured at parse time: the worker then spins up in the background while
+    // the rest of the app boots, instead of stalling the first document open.
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+  }
+
   function NoxPDF(pagesEl, wrapEl, hooks) {
     hooks = hooks || {};
     const onPage = hooks.onPage || function () {};
@@ -14,10 +20,6 @@
     let current = 1;
     let baseWidth = 0;
     let loadSeq = 0;
-
-    if (window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
-    }
 
     function teardown() {
       if (observer) { observer.disconnect(); observer = null; }

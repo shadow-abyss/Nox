@@ -1,6 +1,6 @@
 /* Project NOX — offline service worker.
    Bump CACHE_VERSION whenever you ship changes so clients pick up the new build. */
-const CACHE_VERSION = 'nox-v1';
+const CACHE_VERSION = 'nox-v2';
 
 const SHELL = [
   './',

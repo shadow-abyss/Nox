@@ -171,6 +171,13 @@
 
   function setNav(open) {
     document.body.classList.toggle('nav-open', !!open);
+    const t = document.getElementById('openSidebar');
+    if (t) t.classList.toggle('on', !!open);
+  }
+
+  // The ledger is a permanent panel on desktop and a drawer on a phone.
+  function closeNavOnMobile() {
+    if (window.innerWidth <= 900) setNav(false);
   }
 
   async function openDoc(id) {
@@ -183,7 +190,7 @@
     showView(doc.kind);
     renderList();
     syncAppbar(doc);
-    setNav(false);
+    closeNavOnMobile();
 
     if (doc.kind === 'rich') mountRich(doc);
     else if (doc.kind === 'ink') mountInk(doc);
@@ -956,7 +963,7 @@
       if (!b) return;
       e.preventDefault();
       createDoc(b.dataset.new);
-      setNav(false);
+      closeNavOnMobile();
     });
 
     // doc list
@@ -980,7 +987,7 @@
       $$('#filters button').forEach((x) => x.classList.toggle('active', x === b));
       renderTags();
       renderList();
-      setNav(false);
+      closeNavOnMobile();
     });
 
     // search
@@ -1013,7 +1020,7 @@
     $('#btnSettings').onclick = openSettings;
 
     // mobile nav
-    $('#openSidebar').onclick = () => setNav(true);
+    $('#openSidebar').onclick = () => setNav(!document.body.classList.contains('nav-open'));
     $('#closeSidebar').onclick = () => setNav(false);
     $('#scrim').onclick = () => setNav(false);
 
@@ -1126,6 +1133,7 @@
     updateCounts();
     updateNet();
     syncAppbar(null);
+    if (window.innerWidth > 900) setNav(true);
 
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
